@@ -12,6 +12,7 @@ import mike.dungeons.dungeon.team.EncounterData;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -51,13 +52,18 @@ public abstract class DungeonRoom extends Config {
         data.setEncounterPoint(null);
         data.getActivatedTriggers().clear();
         copyEncounterSpawns(team);
+        System.out.println("Copying state for " + team.getName() + " TEAM");
         final GenericEventComponent eventComponent = getComponent(GenericEventComponent.class);
         if(eventComponent != null) {
             data.setEncounterEvents(eventComponent.clone());
         }
         data.setEncounterSpawnPoint(encounterSpawnPoint.clone().edit(fastLocation -> fastLocation.setWorldName(team.getWorldName())));
-        data.setEncounterPoint(startPoint.clone().edit(triggerPoint -> triggerPoint.getTriggerLocation().edit(fastLocation -> fastLocation.setWorldName(team.getWorldName()))));
+        final TriggerPoint cloned = startPoint.clone();
+        final FastLocation currLoc = cloned.getTriggerLocation().clone();
+        currLoc.edit(fastLocation -> fastLocation.setWorldName(team.getWorldName()));
+        data.setEncounterPoint(new TriggerPoint(currLoc, cloned.getTriggerRadius()));
         data.setEncounterTime(encounterTime);
+        System.out.println("Setting encounter trigger point for " + team.getName() + " to " + data.getEncounterPoint().getTriggerLocation().getWorldName());
     }
 
     public void copyEncounterSpawns(DungeonTeam team) {
@@ -65,10 +71,14 @@ public abstract class DungeonRoom extends Config {
         data.getEncounterSpawns().clear();
         if (hasComponent(SpawnComponent.class)) {
             final SpawnComponent spawnComponent = getComponent(SpawnComponent.class);
-            data.getEncounterSpawns().addAll(spawnComponent.getSpawnLocations().stream().map(
-                    entityLocation -> entityLocation.clone().edit(
-                            loc -> loc.getSpawnLocation().edit(
-                                    fastLocation -> fastLocation.setWorldName(team.getWorldName())))).toList());
+            final List<EntityLocation> spawnLocations = spawnComponent.getSpawnLocations();
+            final String teamWorld = team.getWorldName();
+            for(EntityLocation entityLocation : spawnLocations) {
+                final EntityLocation cloned = entityLocation.clone();
+                final FastLocation entitySpawnLocation = cloned.getSpawnLocation().clone();
+                entitySpawnLocation.edit(fastLocation -> fastLocation.setWorldName(teamWorld));
+                data.getEncounterSpawns().add(new EntityLocation(entitySpawnLocation, cloned.getSpawnCount(), cloned.getSpawnTime()));
+            }
         }
     }
 

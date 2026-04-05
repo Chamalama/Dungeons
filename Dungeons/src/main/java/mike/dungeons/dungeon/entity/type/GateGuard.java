@@ -16,8 +16,8 @@ public class GateGuard extends DungeonEntity {
         this.addComponent(new HealthComponent(100))
                 .addComponent(new TargetComponent(19, 2000, Set.of(DungeonKeys.DUNGEON_MOB)))
                 .addComponent(new TagComponent(DungeonKeys.DUNGEON_MOB))
-                .addComponent(new MovementComponent(0.2, 5.5))
-                .addComponent(new CombatComponent(3.0, 1.0, 0.05, 1.2))
+                .addComponent(new MovementComponent(1.2, 5.5, true))
+                .addComponent(new CombatComponent(6.0, 1.0, 0.05, 1.2))
                 .addComponent(new ScaleComponent(1.25))
                 .addComponent(new AttackComponent(1500, 5.5, Sound.BLOCK_CONDUIT_ATTACK_TARGET))
                 .addComponent(new GenericAIComponent(new RoamComponent(0.3)));

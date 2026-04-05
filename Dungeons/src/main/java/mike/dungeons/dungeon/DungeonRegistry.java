@@ -36,6 +36,10 @@ public class DungeonRegistry {
         rooms.put(dungeonRoom.getRoomID(), dungeonRoom);
     }
 
+    public static String dungeonWorldName(Class<? extends Dungeon> d) {
+        return getDungeon(d).getWorldName();
+    }
+
     public static Dungeon getDungeon(Class<? extends Dungeon> d) {
         return dungeons.get(d);
     }

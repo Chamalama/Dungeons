@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 @Getter
 @Setter
-public abstract class Dungeon {
+public abstract class Dungeon implements Cloneable {
 
     private final String dungeonName, worldName;
     private final Difficulty difficulty;
@@ -29,4 +29,12 @@ public abstract class Dungeon {
         this.dungeonRooms.add(dungeonRoom);
     }
 
+    @Override
+    public Dungeon clone() {
+        try {
+            return (Dungeon) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }

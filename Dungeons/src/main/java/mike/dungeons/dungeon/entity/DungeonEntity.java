@@ -1,7 +1,12 @@
 package mike.dungeons.dungeon.entity;
 
+import com.destroystokyo.paper.entity.ai.GoalKey;
+import com.destroystokyo.paper.entity.ai.GoalType;
+import com.destroystokyo.paper.entity.ai.MobGoals;
+import com.destroystokyo.paper.entity.ai.VanillaGoal;
 import lombok.Getter;
 import mike.dungeons.dungeon.entity.component.CombatComponent;
+import mike.dungeons.dungeon.entity.component.GenericAIComponent;
 import mike.dungeons.dungeon.entity.component.ScaleComponent;
 import mike.dungeons.dungeon.entity.component.TagComponent;
 import mike.dungeons.dungeon.team.DungeonTeam;
@@ -22,6 +27,7 @@ public abstract class DungeonEntity {
     private final String entityName;
     private final EntityType entityType;
     private final Map<Class<?>, Object> components = new HashMap<>();
+    private LivingEntity cached;
 
     private UUID id;
 
@@ -47,8 +53,15 @@ public abstract class DungeonEntity {
     public void spawn(Location location, DungeonTeam dungeonTeam, Consumer<LivingEntity> callback) {
         final LivingEntity dungeonEntity = (LivingEntity) location.getWorld().spawnEntity(location, entityType);
         id = dungeonEntity.getUniqueId();
+        dungeonEntity.setGlowing(true);
         if(dungeonEntity instanceof Mob mob) {
-            mob.setAware(false);
+            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.INTERACT);
+            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.NEAREST_ATTACKABLE);
+            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.FOLLOW_MOB);
+            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.LOOK_AT_PLAYER);
+            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.TEMPT_FOR_NON_PATHFINDERS);
+            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.OPEN_DOOR);
+            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.USE_ITEM);
         }
         if(hasComponent(TagComponent.class)) {
             getComponent(TagComponent.class).applyTags(dungeonEntity);
@@ -58,6 +71,9 @@ public abstract class DungeonEntity {
         }
         if(hasComponent(CombatComponent.class)) {
             getComponent(CombatComponent.class).apply(dungeonEntity);
+        }
+        if(hasComponent(GenericAIComponent.class)) {
+            getComponent(GenericAIComponent.class).getCurrentState().start(this);
         }
         for(Class<?> component : components.keySet()) {
             DungeonMobs.registerComponent(component, this);
@@ -69,7 +85,11 @@ public abstract class DungeonEntity {
     }
 
     public LivingEntity getEntity() {
-        return (LivingEntity) Bukkit.getEntity(id);
+        if(cached != null && cached.isValid() && !cached.isDead()) {
+            return cached;
+        }
+        cached = (LivingEntity) Bukkit.getEntity(id);
+        return cached;
     }
 
 }

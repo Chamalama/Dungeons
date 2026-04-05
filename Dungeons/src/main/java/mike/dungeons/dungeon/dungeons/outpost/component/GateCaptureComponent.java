@@ -24,7 +24,6 @@ public class GateCaptureComponent implements EventComponent {
 
     private static final String BUFF_ID = "CHARGED";
     private final List<CapturePoint> capturePoints = new ArrayList<>();
-    private long lastTickTime;
 
     public GateCaptureComponent() {
         this.capturePoints.add(new CapturePoint(new int[]{-576, 210, 123}, Particle.FLAME));
@@ -35,11 +34,11 @@ public class GateCaptureComponent implements EventComponent {
     @Override
     public void tick(DungeonTeam team, GenericEventComponent genericEventComponent) {
         final long currTime = System.currentTimeMillis();
-        if(currTime - lastTickTime < tickTime()) return;
         final CaptureState captureState = team.getEncounterData().getState(CaptureState.class);
         if(captureState == null) {
             return;
         }
+        if(currTime - captureState.getLastTickTime() < tickTime()) return;
         final World world = Bukkit.getWorld(team.getWorldName());
         if(world == null) return;
         final List<Player> teamPlayers = team.getPlayers(true);
@@ -50,7 +49,6 @@ public class GateCaptureComponent implements EventComponent {
                     if(capturePoint.getProgress() % 7 == 0) {
                         player.playSound(player, Sound.ITEM_TRIDENT_THUNDER, 1.0F, 1.2f + (capturePoint.getProgress() / 50));
                     }
-                    DungeonUtil.sendDungeonMessage(player, "<green>Charging conduit " + capturePoint.getProgress() + "%...");
                     break;
                 }
             }
@@ -67,9 +65,9 @@ public class GateCaptureComponent implements EventComponent {
                     player.playSound(player, Sound.ITEM_TRIDENT_RETURN, 1.0F, 1.5F);
                 }
             }
-            if(capturePoint.isCaptured()) {
+            if(capturePoint.getProgress() > 0) {
                 final Location location = capturePoint.asLocation(world);
-                ParticleUtil.circle(location.clone().add(0, 3, 0).toCenterLocation(), capturePoint.getCaptureParticle(), 4, 0.75, 15);
+                ParticleUtil.circle(location.clone().add(0, 3, 0).toCenterLocation(), capturePoint.getCaptureParticle(), 4, 0.75, (int)capturePoint.getProgress()/2);
             }
         }
         if(captureState.getPointsCaptured() >= 3 && !captureState.isBuffSpawned()) {
@@ -85,18 +83,20 @@ public class GateCaptureComponent implements EventComponent {
             }
             captureState.setBuffSpawned(true);
         }
-        this.lastTickTime = currTime;
+        captureState.setLastTickTime(currTime);
     }
 
     @Override
     public void startEvent(DungeonTeam dungeonTeam) {
         final World world = Bukkit.getWorld(dungeonTeam.getWorldName());
         final EncounterData encounterData = dungeonTeam.getEncounterData();
-        for(CapturePoint capturePoint : capturePoints) {
-            encounterData.getRoamPoints().add(new FastLocation(capturePoint.asLocation(world)));
-        }
         final CaptureState state = new CaptureState();
-        state.getCapturePoints().addAll(capturePoints.stream().map(CapturePoint::clone).toList());
+        for(CapturePoint capturePoint : capturePoints) {
+            capturePoint = capturePoint.clone();
+            encounterData.getRoamPoints().add(new FastLocation(capturePoint.asLocation(world)));
+            capturePoint.setTeamWorld(dungeonTeam.getWorldName());
+            state.getCapturePoints().add(capturePoint);
+        }
         dungeonTeam.getEncounterData().setState(CaptureState.class, state);
         if(world == null) return;
         for (final CapturePoint capturePoint : capturePoints) {
@@ -112,6 +112,9 @@ public class GateCaptureComponent implements EventComponent {
     @Override
     public void stopEvent(DungeonTeam dungeonTeam) {
         final EncounterData data = dungeonTeam.getEncounterData();
+        for(Player player : dungeonTeam.getPlayers(true)) {
+            BuffSystem.removeBuff(player);
+        }
         data.getRoamPoints().clear();
         data.clearState();
     }
@@ -128,19 +131,21 @@ public class GateCaptureComponent implements EventComponent {
 
     @Getter
     @Setter
-    static class CapturePoint implements Cloneable{
+    static class CapturePoint implements Cloneable {
 
         private final int[] coordinates;
         private Particle captureParticle;
         private float progress;
         private long lastIncrementTime;
         private boolean captured;
+        private String teamWorld;
 
         public CapturePoint(int[] coordinates, Particle captureParticle) {
             this.coordinates = coordinates;
             this.progress = 0;
             this.captured = false;
             this.captureParticle = captureParticle;
+            this.teamWorld = "";
         }
 
         public Location asLocation(World world) {
@@ -149,15 +154,17 @@ public class GateCaptureComponent implements EventComponent {
 
         public boolean isInRange(Entity entity) {
             final Location entityLoc = entity.getLocation();
+            final World entityWorld = entityLoc.getWorld();
+            if(!entityWorld.getName().equalsIgnoreCase(teamWorld)) return false;
             final int entityX = entityLoc.getBlockX();
             final int entityY = entityLoc.getBlockY();
             final int entityZ = entityLoc.getBlockZ();
             final int pointX = coordinates[0];
             final int pointY = coordinates[1];
             final int pointZ = coordinates[2];
-            return Math.abs(pointX - entityX) < 7
-                    && Math.abs(pointY - entityY) < 7
-                    && Math.abs(pointZ - entityZ) < 7;
+            return Math.abs(pointX - entityX) < 8
+                    && Math.abs(pointY - entityY) < 8
+                    && Math.abs(pointZ - entityZ) < 8;
         }
 
         private boolean canIncrement() {
@@ -172,7 +179,6 @@ public class GateCaptureComponent implements EventComponent {
         @Override
         public CapturePoint clone() {
             try {
-                // TODO: copy mutable state here, so the clone can't change the internals of the original
                 return (CapturePoint) super.clone();
             } catch (CloneNotSupportedException e) {
                 throw new AssertionError();
@@ -187,6 +193,7 @@ public class GateCaptureComponent implements EventComponent {
         private final List<CapturePoint> capturePoints = new ArrayList<>();
         private int pointsCaptured = 0;
         private boolean buffSpawned = false;
+        private long lastTickTime = 0L;
 
         public void incrementCaptured() {
             ++pointsCaptured;

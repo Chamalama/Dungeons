@@ -17,7 +17,7 @@ import org.bukkit.entity.LivingEntity;
 public class MovementSystem extends AbstractTask {
 
     public MovementSystem() {
-        super(Dungeons.getInst(), 0, 1, false);
+        super(Dungeons.getInst(), 0, 3, false);
     }
 
     @Override
@@ -30,12 +30,21 @@ public class MovementSystem extends AbstractTask {
             final Entity targetEntity = targetComponent.getTarget();
             final Location targetLocation = targetComponent.getLocationTarget();
             final LivingEntity le = dungeonEntity.getEntity();
+            boolean usePathfinder = movementComponent.isUsePathfinder();
             if(targetEntity == null && targetLocation != null) {
-                movementComponent.move(le, targetLocation);
+                if(usePathfinder) {
+                    movementComponent.moveWithPathfinder(le, targetLocation);
+                }else{
+                    movementComponent.move(le, targetLocation);
+                }
                 le.lookAt(Position.fine(targetLocation), LookAnchor.EYES);
             }else {
                 if (targetEntity != null) {
-                    movementComponent.move(le, targetEntity.getLocation());
+                    if(usePathfinder) {
+                        movementComponent.moveWithPathfinder(le, targetEntity.getLocation());
+                    }else{
+                        movementComponent.move(le, targetEntity.getLocation());
+                    }
                     le.lookAt(Position.fine(targetEntity.getLocation().clone().add(0, 1.5, 0)), LookAnchor.EYES);
                 }
             }

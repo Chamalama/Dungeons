@@ -3,7 +3,9 @@ package mike.dungeons.dungeon.entity;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import lombok.Getter;
+import mike.dungeons.dungeon.entity.component.GenericAIComponent;
 import mike.dungeons.dungeon.entity.type.GateGuard;
+import mike.dungeons.dungeon.entity.type.GateKeeper;
 import mike.dungeons.dungeon.team.DungeonTeam;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -14,14 +16,15 @@ import java.util.function.Supplier;
 @Getter
 public enum DungeonMobs {
 
-    GATE_GUARD(GateGuard::new);
+    GATE_GUARD(GateGuard::new),
+    GATE_KEEPER(GateKeeper::new);
 
     private final Supplier<DungeonEntity> entitySupplier;
 
     @Getter
     public static final Map<UUID, DungeonEntity> activeEntities = new HashMap<>();
     public static final Map<Class<?>, Set<DungeonEntity>> componentEntities = new HashMap<>();
-    public static final BiMap<DungeonEntity, DungeonTeam> entityToTeam = HashBiMap.create();
+    public static final Map<DungeonEntity, DungeonTeam> entityToTeam = new HashMap<>();
 
     DungeonMobs(Supplier<DungeonEntity> entitySupplier) {
         this.entitySupplier = entitySupplier;
@@ -45,6 +48,9 @@ public enum DungeonMobs {
         activeEntities.remove(id);
         entityToTeam.remove(entity);
         if (entity != null) {
+            if(entity.hasComponent(GenericAIComponent.class)) {
+                entity.getComponent(GenericAIComponent.class).getCurrentState().stop(entity);
+            }
             componentEntities.values().forEach(dungeonEntities -> dungeonEntities.remove(entity));
         }
     }

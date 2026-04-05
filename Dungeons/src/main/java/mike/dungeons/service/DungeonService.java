@@ -56,6 +56,7 @@ public class DungeonService {
             }
         }
         dungeonTeam.setWorldName(null);
+        dungeonTeam.setDungeon(null);
     }
 
     public void resetEncounter(DungeonTeam dungeonTeam) {

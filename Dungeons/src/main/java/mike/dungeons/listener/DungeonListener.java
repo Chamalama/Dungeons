@@ -59,6 +59,8 @@ public class DungeonListener implements Listener {
             final Location playerLocation = player.getLocation();
             final Location triggerLocation = triggerPoint.getTriggerLocation().toBukkit();
             final int triggerID = triggerPoint.getTriggerID();
+            boolean sameWorld = playerLocation.getWorld() == triggerLocation.getWorld();
+            if(!sameWorld) return;
             final boolean isInRange = playerLocation.distanceSquared(triggerLocation) <= triggerPoint.getTriggerRadius();
             final boolean isActivated = encounterData.getActivatedTriggers().contains(triggerID);
             if(!isActivated && isInRange) {

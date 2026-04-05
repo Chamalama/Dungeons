@@ -4,6 +4,7 @@ import mike.blueprint.loader.Component;
 import mike.blueprint.util.AbstractTask;
 import mike.dungeons.Dungeons;
 import mike.dungeons.dungeon.DungeonBuff;
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -28,6 +29,14 @@ public class BuffSystem extends AbstractTask {
         if(entity instanceof Player player) {
             player.showBossBar(buff.getDisplayBar());
         }
+    }
+
+    public static void removeBuff(Entity entity) {
+        final DungeonBuff buff = currentBuff.get(entity.getUniqueId());
+        if(buff == null) return;
+        final BossBar display = buff.getDisplayBar();
+        display.removeViewer(entity);
+        currentBuff.remove(entity.getUniqueId());
     }
 
     public static DungeonBuff getBuff(Entity entity) {
