@@ -1,11 +1,10 @@
 plugins {
     id 'java'
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
-    id 'com.gradleup.shadow' version '8.3.5'
+    id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
 group = 'mike'
-version = '1.0'
+version = '0.1'
 
 repositories {
     mavenCentral()
@@ -13,12 +12,10 @@ repositories {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
-    maven { url = "https://repo.aikar.co/content/groups/aikar/" }
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.11-R0.1-SNAPSHOT")
-    implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     compileOnly(fileTree(rootDir.path + "/lib"))
     compileOnly("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")

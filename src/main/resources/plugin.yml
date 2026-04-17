@@ -1,4 +1,4 @@
-name: Blueprint
-version: '1.0'
-main: mike.blueprint.Blueprint
+name: Dungeons
+version: '0.1'
+main: mike.dungeons.Dungeons
 api-version: '1.21'
