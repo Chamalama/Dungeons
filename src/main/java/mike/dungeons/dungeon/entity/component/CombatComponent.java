@@ -3,13 +3,14 @@ package mike.dungeons.dungeon.entity.component;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import mike.dungeons.dungeon.entity.DungeonEntity;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class CombatComponent {
+public class CombatComponent implements ApplicableComponent {
 
     private double damage;
     private double armor;
@@ -20,11 +21,9 @@ public class CombatComponent {
         return Math.random() <= critChance;
     }
 
-    public void apply(LivingEntity entity) {
-        if(entity.getAttribute(Attribute.ATTACK_DAMAGE) == null) {
-            entity.registerAttribute(Attribute.ATTACK_DAMAGE);
-        }
-        entity.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(damage);
+    @Override
+    public void apply(DungeonEntity entity) {
+        entity.getEntity().registerAttribute(Attribute.ATTACK_DAMAGE);
+        entity.getEntity().getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(damage);
     }
-
 }

@@ -10,8 +10,10 @@ import mike.dungeons.dungeon.DungeonRoom;
 import mike.dungeons.dungeon.dungeons.outpost.Outpost;
 import mike.dungeons.dungeon.gui.DungeonGUI;
 import mike.dungeons.dungeon.team.DungeonTeam;
+import mike.dungeons.dungeon.team.RemovalReason;
 import mike.dungeons.service.DungeonService;
 import mike.dungeons.service.DungeonTeamService;
+import mike.dungeons.storage.SpawnStorage;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,11 +29,14 @@ public class DungeonCMD extends BaseCommand {
     private final DungeonTeamService dungeonTeamService;
     private final PaperCommandManager paperCommandManager;
 
-    public DungeonCMD(DungeonGUI dungeonGUI, DungeonService dungeonService, DungeonTeamService dungeonTeamService, PaperCommandManager paperCommandManager) {
+    private final SpawnStorage spawnStorage;
+
+    public DungeonCMD(DungeonGUI dungeonGUI, DungeonService dungeonService, DungeonTeamService dungeonTeamService, PaperCommandManager paperCommandManager, SpawnStorage spawnStorage) {
         this.dungeonGUI = dungeonGUI;
         this.dungeonService = dungeonService;
         this.dungeonTeamService = dungeonTeamService;
         this.paperCommandManager = paperCommandManager;
+        this.spawnStorage = spawnStorage;
         this.paperCommandManager.getCommandCompletions().registerCompletion("dungeons", c -> DungeonRegistry.getRooms().keySet());
     }
 
@@ -78,8 +83,13 @@ public class DungeonCMD extends BaseCommand {
     public void leaveDungeon(Player player) {
         final DungeonTeam dungeonTeam = dungeonTeamService.getPlayersTeam(player);
         if(dungeonTeam == null) return;
-        dungeonService.removeTeamDungeon(dungeonTeam);
-        dungeonTeam.setDungeon(null);
+        if(dungeonTeam.getTeamSize() == 1) {
+            dungeonService.removeTeamDungeon(dungeonTeam);
+            dungeonTeam.setDungeon(null);
+        }else{
+            dungeonTeamService.unregisterMember(player, RemovalReason.LEFT);
+            player.teleport(spawnStorage.getSpawnLocation().toBukkit());
+        }
     }
 
 }

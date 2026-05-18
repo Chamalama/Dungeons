@@ -52,7 +52,6 @@ public abstract class DungeonRoom extends Config {
         data.setEncounterPoint(null);
         data.getActivatedTriggers().clear();
         copyEncounterSpawns(team);
-        System.out.println("Copying state for " + team.getName() + " TEAM");
         final GenericEventComponent eventComponent = getComponent(GenericEventComponent.class);
         if(eventComponent != null) {
             data.setEncounterEvents(eventComponent.clone());
@@ -63,7 +62,6 @@ public abstract class DungeonRoom extends Config {
         currLoc.edit(fastLocation -> fastLocation.setWorldName(team.getWorldName()));
         data.setEncounterPoint(new TriggerPoint(currLoc, cloned.getTriggerRadius()));
         data.setEncounterTime(encounterTime);
-        System.out.println("Setting encounter trigger point for " + team.getName() + " to " + data.getEncounterPoint().getTriggerLocation().getWorldName());
     }
 
     public void copyEncounterSpawns(DungeonTeam team) {

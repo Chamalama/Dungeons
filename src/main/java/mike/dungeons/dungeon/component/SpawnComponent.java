@@ -68,6 +68,7 @@ public class SpawnComponent {
         final EncounterData data = team.getEncounterData();
         if(data == null) return;
         entity.get().spawn(spawnLocation, team, dungeonEntity -> {
+            dungeonEntity.setCollidable(true);
             dungeonEntity.getPersistentDataContainer().set(DungeonKeys.LOCATION_ID, PersistentDataType.INTEGER, location.getLocationID());
         });
         location.incrementActive();

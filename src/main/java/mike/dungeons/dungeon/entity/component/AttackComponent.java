@@ -33,7 +33,7 @@ public class AttackComponent {
         if(distanceToTarget > attackDistance) return;
         le.swingMainHand();
         le.attack(target);
-        target.getWorld().playSound(target, attackSound, 0.8F, 1.0F);
+        target.getWorld().playSound(target, attackSound, 0.5F, 1.0F);
         this.lastAttackTime = System.currentTimeMillis();
     }
 

@@ -12,6 +12,8 @@ import mike.dungeons.dungeon.entity.component.TargetComponent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
+import java.util.UUID;
+
 @Component
 public class AttackSystem extends AbstractTask {
 
@@ -21,7 +23,8 @@ public class AttackSystem extends AbstractTask {
 
     @Override
     public void run() {
-        for(DungeonEntity dungeonEntity : DungeonMobs.getComponentEntities(AttackComponent.class)) {
+        for(UUID id : DungeonMobs.getComponentEntities(AttackComponent.class)) {
+            final DungeonEntity dungeonEntity = DungeonMobs.getEntity(id);
             if(!dungeonEntity.hasComponent(TargetComponent.class) || dungeonEntity.getEntity() == null) continue;
             final TargetComponent targetComponent = dungeonEntity.getComponent(TargetComponent.class);
             if(targetComponent.getTarget() == null) continue;

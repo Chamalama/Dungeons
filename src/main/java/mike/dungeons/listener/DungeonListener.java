@@ -13,6 +13,7 @@ import mike.dungeons.dungeon.entity.DungeonEntity;
 import mike.dungeons.dungeon.entity.DungeonMobs;
 import mike.dungeons.dungeon.team.DungeonTeam;
 import mike.dungeons.dungeon.team.EncounterData;
+import mike.dungeons.service.DataService;
 import mike.dungeons.service.DungeonService;
 import mike.dungeons.service.DungeonTeamService;
 import org.bukkit.Location;
@@ -30,9 +31,12 @@ public class DungeonListener implements Listener {
     private final DungeonTeamService dungeonTeamService;
     private final DungeonService dungeonService;
 
-    public DungeonListener(DungeonTeamService dungeonTeamService, DungeonService dungeonService) {
+    private final DataService dataService;
+
+    public DungeonListener(DungeonTeamService dungeonTeamService, DungeonService dungeonService, DataService dataService) {
         this.dungeonTeamService = dungeonTeamService;
         this.dungeonService = dungeonService;
+        this.dataService = dataService;
     }
 
     @EventHandler
@@ -66,8 +70,9 @@ public class DungeonListener implements Listener {
             if(!isActivated && isInRange) {
                 encounterData.getCurrentEncounter().startEncounter(team);
                 encounterData.getActivatedTriggers().add(triggerID);
+                dataService.sendDungeonStartData(team);
                 final GenericEventComponent genericEventComponent = encounterData.getEncounterEvents();
-                if(genericEventComponent.getCurrentEvent().startOnEnter()) {
+                if(genericEventComponent != null && genericEventComponent.getCurrentEvent().startOnEnter()) {
                     genericEventComponent.startEvent(team);
                 }
             }

@@ -5,16 +5,13 @@ import com.destroystokyo.paper.entity.ai.GoalType;
 import com.destroystokyo.paper.entity.ai.MobGoals;
 import com.destroystokyo.paper.entity.ai.VanillaGoal;
 import lombok.Getter;
-import mike.dungeons.dungeon.entity.component.CombatComponent;
-import mike.dungeons.dungeon.entity.component.GenericAIComponent;
-import mike.dungeons.dungeon.entity.component.ScaleComponent;
-import mike.dungeons.dungeon.entity.component.TagComponent;
+import mike.dungeons.Dungeons;
+import mike.dungeons.dungeon.entity.component.*;
 import mike.dungeons.dungeon.team.DungeonTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,30 +50,18 @@ public abstract class DungeonEntity {
     public void spawn(Location location, DungeonTeam dungeonTeam, Consumer<LivingEntity> callback) {
         final LivingEntity dungeonEntity = (LivingEntity) location.getWorld().spawnEntity(location, entityType);
         id = dungeonEntity.getUniqueId();
-        dungeonEntity.setGlowing(true);
         if(dungeonEntity instanceof Mob mob) {
-            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.INTERACT);
-            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.NEAREST_ATTACKABLE);
-            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.FOLLOW_MOB);
-            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.LOOK_AT_PLAYER);
-            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.TEMPT_FOR_NON_PATHFINDERS);
-            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.OPEN_DOOR);
-            Bukkit.getMobGoals().removeGoal(mob, VanillaGoal.USE_ITEM);
-        }
-        if(hasComponent(TagComponent.class)) {
-            getComponent(TagComponent.class).applyTags(dungeonEntity);
-        }
-        if(hasComponent(ScaleComponent.class)) {
-            getComponent(ScaleComponent.class).scale(dungeonEntity);
-        }
-        if(hasComponent(CombatComponent.class)) {
-            getComponent(CombatComponent.class).apply(dungeonEntity);
+            Bukkit.getMobGoals().removeAllGoals(mob);
         }
         if(hasComponent(GenericAIComponent.class)) {
             getComponent(GenericAIComponent.class).getCurrentState().start(this);
         }
         for(Class<?> component : components.keySet()) {
             DungeonMobs.registerComponent(component, this);
+            final Object o = getComponent(component);
+            if(o instanceof ApplicableComponent applicableComponent) {
+                applicableComponent.apply(this);
+            }
         }
         dungeonTeam.getEncounterData().addEntity(id);
         DungeonMobs.registerToTeam(this, dungeonTeam);
@@ -88,7 +73,7 @@ public abstract class DungeonEntity {
         if(cached != null && cached.isValid() && !cached.isDead()) {
             return cached;
         }
-        cached = (LivingEntity) Bukkit.getEntity(id);
+        Bukkit.getScheduler().runTask(Dungeons.getInst(), () -> cached = (LivingEntity) Bukkit.getEntity(id));
         return cached;
     }
 

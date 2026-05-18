@@ -15,8 +15,10 @@ import mike.dungeons.service.DungeonTeamService;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 @Component
@@ -30,17 +32,17 @@ public class DamageSystemListener implements Listener {
         this.dungeonTeamService = dungeonTeamService;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onDamage(EntityDamageByEntityEvent event) {
         if(!(event.getEntity() instanceof LivingEntity damaged)) return;
         if(!(event.getDamager() instanceof LivingEntity damager)) return;
+        if(event.getDamage() <= 0) return;
         final DungeonEntity damagerEntity = DungeonMobs.getEntity(damager.getUniqueId());
         if(damagerEntity != null) {
             final CombatComponent combatComponent = damagerEntity.getComponent(CombatComponent.class);
-            if(combatComponent != null) {
-                if(combatComponent.shouldCrit()) {
-                    event.setDamage(event.getDamage() * combatComponent.getCritMultiplier());
-                }
+            if (combatComponent == null) return;
+            if (combatComponent.shouldCrit()) {
+                event.setDamage(event.getDamage() * combatComponent.getCritMultiplier());
             }
             return;
         }
@@ -83,6 +85,7 @@ public class DamageSystemListener implements Listener {
             }
         }
         damageSystem.clearEntry(le);
+        le.remove();
     }
 
 }

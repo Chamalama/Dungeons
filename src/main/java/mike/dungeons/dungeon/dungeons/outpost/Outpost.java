@@ -8,7 +8,7 @@ public class Outpost extends Dungeon {
 
     public Outpost() {
         super("Outpost", "dungeon_outpost", Difficulty.EASY);
-        this.spawnLocation = new FastLocation("dungeon_outpost", -536, 211, 81, 91, 0);
+        this.spawnLocation = new FastLocation("dungeon_outpost", -69, 100, 56, -136, 0);
     }
 
 }

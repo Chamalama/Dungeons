@@ -7,6 +7,8 @@ import mike.dungeons.dungeon.entity.DungeonEntity;
 import mike.dungeons.dungeon.entity.DungeonMobs;
 import mike.dungeons.dungeon.entity.component.GenericAIComponent;
 
+import java.util.UUID;
+
 @Component
 public class GenericAISystem extends AbstractTask {
 
@@ -16,7 +18,8 @@ public class GenericAISystem extends AbstractTask {
 
     @Override
     public void run() {
-        for(DungeonEntity dungeonEntity : DungeonMobs.getComponentEntities(GenericAIComponent.class)) {
+        for(UUID id : DungeonMobs.getComponentEntities(GenericAIComponent.class)) {
+            final DungeonEntity dungeonEntity = DungeonMobs.getEntity(id);
             final GenericAIComponent aiComponent = dungeonEntity.getComponent(GenericAIComponent.class);
             aiComponent.tick(dungeonEntity);
         }

@@ -7,10 +7,7 @@ import mike.dungeons.Dungeons;
 import mike.dungeons.dungeon.DungeonRegistry;
 import mike.dungeons.dungeon.DungeonRoom;
 import mike.dungeons.dungeon.EntityLocation;
-import mike.dungeons.dungeon.component.GenericEventComponent;
-import mike.dungeons.dungeon.component.KillComponent;
 import mike.dungeons.dungeon.component.SpawnComponent;
-import mike.dungeons.dungeon.dungeons.outpost.component.GateCaptureComponent;
 import mike.dungeons.dungeon.entity.DungeonMobs;
 import mike.dungeons.dungeon.team.DungeonTeam;
 import org.bukkit.Sound;
@@ -27,11 +24,10 @@ public class GateRoom extends DungeonRoom {
         super(DungeonRegistry.getDungeon(Outpost.class), "GATE_ROOM");
         this.encounterTime = 180L;
         this.addComponent(new SpawnComponent(DungeonMobs.GATE_GUARD::spawnEntity, List.of(
-                EntityLocation.of(new FastLocation(OUTPOST_WORLD, -607, 214, 121), 4, 30000),
-                EntityLocation.of(new FastLocation(OUTPOST_WORLD, -631, 214, 34), 4, 30000),
-                EntityLocation.of(new FastLocation(OUTPOST_WORLD, -637, 217, 83), 4, 30000)
+                EntityLocation.of(new FastLocation(OUTPOST_WORLD, 1, 109, -39), 1, 30000),
+                EntityLocation.of(new FastLocation(OUTPOST_WORLD, 0, 99, -9), 1, 30000),
+                EntityLocation.of(new FastLocation(OUTPOST_WORLD, 24, 99, 50), 1, 30000)
         )));
-        this.addComponent(new GenericEventComponent(new GateCaptureComponent()));
     }
 
     @Override
@@ -42,9 +38,10 @@ public class GateRoom extends DungeonRoom {
         new ExpiringTask(Dungeons.getInst()).runCount(3).setAsync(true).setAction(() -> {
             for(final Player player : team) {
                 player.playSound(player, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.8F, pitch.getAndSet(pitch.get() - 0.25f));
-                if(pitch.get() <= 0.15f) {
-                    player.playSound(player, Sound.ITEM_TRIDENT_THUNDER, 0.7F, 0.4F);
-                }
+            }
+        }).onComplete(() -> {
+            for(Player player : team) {
+                player.playSound(player, Sound.ITEM_TRIDENT_THUNDER, 0.7F, 0.4F);
             }
         }).run(3, 7);
         for(final Player player : team) {

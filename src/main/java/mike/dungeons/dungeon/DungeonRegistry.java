@@ -5,6 +5,7 @@ import mike.blueprint.loader.Component;
 import mike.dungeons.Dungeons;
 import mike.dungeons.dungeon.dungeons.outpost.GateRoom;
 import mike.dungeons.dungeon.dungeons.outpost.Outpost;
+import mike.dungeons.dungeon.dungeons.vault.Vault;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,13 +22,15 @@ public class DungeonRegistry {
     private static final Map<String, DungeonRoom> rooms = new HashMap<>();
 
     public DungeonRegistry() {
+        //OUTPOST
         registerDungeon(Outpost.class, new Outpost());
         registerRoom(GateRoom.class, new GateRoom());
+        //VAULT
+        registerDungeon(Vault.class, new Vault());
     }
 
     public static void registerDungeon(Class<? extends Dungeon> dungeonClass, Dungeon dungeon) {
         dungeons.put(dungeonClass, dungeon);
-        Dungeons.getInst().log("Dungeon rooms for " + dungeon.getDungeonName() + " " + dungeon.getDungeonRooms().size());
     }
 
     public static void registerRoom(Class<? extends DungeonRoom> roomClass, DungeonRoom dungeonRoom) {

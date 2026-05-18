@@ -20,7 +20,7 @@ public final class Dungeons extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Loader.loaded.values().forEach(o -> {
+        Loader.getLoaded().values().forEach(o -> {
             if(o instanceof AbstractTask task) {
                 task.cancel();
             }

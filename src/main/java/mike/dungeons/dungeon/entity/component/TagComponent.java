@@ -11,16 +11,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Getter
-public class TagComponent {
+public class TagComponent implements ApplicableComponent {
 
     private final Set<NamespacedKey> keys = new HashSet<>();
 
     public TagComponent(NamespacedKey... key) {
         keys.addAll(Arrays.asList(key));
-    }
-
-    public void applyTags(LivingEntity entity) {
-        keys.forEach(key -> entity.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte)1));
     }
 
     public void addTag(NamespacedKey key) {
@@ -31,4 +27,8 @@ public class TagComponent {
         return keys.contains(key);
     }
 
+    @Override
+    public void apply(DungeonEntity entity) {
+        keys.forEach(key -> entity.getEntity().getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte)1));
+    }
 }

@@ -8,7 +8,7 @@ import org.bukkit.entity.LivingEntity;
 
 @Getter
 @Setter
-public class ScaleComponent {
+public class ScaleComponent implements ApplicableComponent {
 
     private double scale;
 
@@ -16,8 +16,9 @@ public class ScaleComponent {
         this.scale = scale;
     }
 
-    public void scale(LivingEntity dungeonEntity) {
-        dungeonEntity.getAttribute(Attribute.SCALE).setBaseValue(scale);
+    @Override
+    public void apply(DungeonEntity entity) {
+        entity.getEntity().getAttribute(Attribute.SCALE).setBaseValue(scale);
     }
 
 }

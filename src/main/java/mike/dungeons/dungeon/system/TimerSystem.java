@@ -41,7 +41,7 @@ public class TimerSystem extends AbstractTask {
                     TitleUtil.sendTitle(player, "<red><b>Failure", "", 1, 1, 1);
                     player.playSound(player, Sound.ENTITY_WITHER_DEATH, 0.7F, 0.7F);
                 }
-                Bukkit.getScheduler().runTask(Dungeons.getInst(), () ->  dungeonService.resetEncounter(dungeonTeam));
+                Bukkit.getScheduler().runTask(Dungeons.getInst(), () -> dungeonService.resetEncounter(dungeonTeam));
 
             }
             for(Player player : players) {
