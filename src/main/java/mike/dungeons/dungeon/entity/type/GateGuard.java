@@ -29,7 +29,6 @@ public class GateGuard extends DungeonEntity {
                 .addComponent(new CombatComponent(6.0, 1.0, 0.05, 1.2))
                 .addComponent(new ScaleComponent(1.05))
                 .addComponent(new AttackComponent(1500, 7.5, Sound.ENTITY_IRON_GOLEM_ATTACK));
-
     }
 
 }

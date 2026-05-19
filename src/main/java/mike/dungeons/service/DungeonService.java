@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +79,11 @@ public class DungeonService {
 
     public void removeEditor(Player player) {
         editing.remove(player.getUniqueId());
+        for(ItemStack stack : player.getInventory()) {
+            if(DungeonEditItems.isRegionItem(stack) || DungeonEditItems.isSpawnPointItem(stack) || DungeonEditItems.isTriggerPointItem(stack)) {
+                player.getInventory().remove(stack);
+            }
+        }
         DungeonUtil.sendDungeonMessage(player, "You are no longer editing the dungeon room!");
     }
 

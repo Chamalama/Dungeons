@@ -5,6 +5,7 @@ import co.aikar.commands.PaperCommandManager;
 import co.aikar.commands.annotation.*;
 import mike.blueprint.loader.Component;
 import mike.blueprint.util.Text;
+import mike.dungeons.dungeon.DungeonEditItems;
 import mike.dungeons.dungeon.DungeonRegistry;
 import mike.dungeons.dungeon.DungeonRoom;
 import mike.dungeons.dungeon.dungeons.outpost.Outpost;
@@ -62,9 +63,12 @@ public class DungeonCMD extends BaseCommand {
     public void edit(Player sender, String dungeon) {
         final DungeonRoom dungeonRoom = DungeonRegistry.getRoom(dungeon);
         dungeonService.addEditor(sender, dungeonRoom);
+        sender.getInventory().addItem(DungeonEditItems.getRegionItem());
+        sender.getInventory().addItem(DungeonEditItems.getSpawnPositionItem());
+        sender.getInventory().addItem(DungeonEditItems.getTriggerPointItem());
     }
 
-    @Subcommand("stop-edit")
+    @Subcommand("stopedit")
     @CommandPermission("admin.edit.cmd")
     public void stopEdit(Player sender) {
         if(dungeonService.getEditing(sender) == null) return;
